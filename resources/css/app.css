@@ -1,0 +1,178 @@
+@import 'tailwindcss';
+
+@source '../views/**/*.blade.php';
+@source '../js/**/*.js';
+
+/* Mode gelap dikendalikan class .dark di <html> (lihat partials/head.blade.php), bukan media query. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Token warna: nilai RGB di :root / .dark, Tailwind cukup merujuknya. */
+@theme inline {
+    --color-canvas: rgb(var(--canvas));
+    --color-surface: rgb(var(--surface));
+    --color-sunken: rgb(var(--sunken));
+    --color-line: rgb(var(--line));
+    --color-line-strong: rgb(var(--line-strong));
+    --color-ink: rgb(var(--ink));
+    --color-muted: rgb(var(--muted));
+    --color-faint: rgb(var(--faint));
+    --color-accent: rgb(var(--accent));
+    --color-accent-hover: rgb(var(--accent-hover));
+    --color-accent-soft: rgb(var(--accent-soft));
+    --color-accent-ink: rgb(var(--accent-ink));
+    --color-ok: rgb(var(--ok));
+    --color-warn: rgb(var(--warn));
+    /* Warna seri ke-2 di grafik (seri 1 = accent); pasangan lolos validasi CVD di kedua mode. */
+    --color-series-2: rgb(var(--series-2));
+}
+
+@theme {
+    --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+    --canvas: 246 244 240;
+    --surface: 255 255 255;
+    --sunken: 240 237 232;
+    --line: 228 223 216;
+    --line-strong: 210 203 194;
+    --ink: 28 25 23;
+    --muted: 87 82 77;
+    --faint: 139 132 124;
+    --accent: 196 22 28;
+    --accent-hover: 163 16 22;
+    --accent-soft: 252 234 232;
+    --accent-ink: 163 16 22;
+    --ok: 21 128 61;
+    --warn: 180 83 9;
+    --series-2: 31 111 178;
+    color-scheme: light;
+}
+
+.dark {
+    --canvas: 16 14 13;
+    --surface: 25 22 21;
+    --sunken: 34 30 28;
+    --line: 45 40 37;
+    --line-strong: 66 59 55;
+    --ink: 241 237 232;
+    --muted: 178 170 161;
+    --faint: 122 115 108;
+    --accent: 228 58 58;
+    --accent-hover: 240 84 84;
+    --accent-soft: 58 22 21;
+    --accent-ink: 255 140 130;
+    --ok: 88 199 128;
+    --warn: 232 162 64;
+    --series-2: 62 139 219;
+    color-scheme: dark;
+}
+
+/* Transisi halus antarhalaman (Chrome/Edge); browser lain tetap pindah biasa. */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 120ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}
+
+[x-cloak] { display: none !important; }
+
+@media print {
+    .no-print { display: none !important; }
+
+    /* Kertas selalu terang, walau layar sedang mode gelap. */
+    .dark {
+        --canvas: 255 255 255;
+        --surface: 255 255 255;
+        --sunken: 240 237 232;
+        --line: 228 223 216;
+        --line-strong: 210 203 194;
+        --ink: 28 25 23;
+        --muted: 87 82 77;
+        --faint: 139 132 124;
+        --accent: 196 22 28;
+        --accent-soft: 252 234 232;
+        --accent-ink: 163 16 22;
+        --ok: 21 128 61;
+        --warn: 180 83 9;
+        --series-2: 31 111 178;
+        color-scheme: light;
+    }
+
+    @page { margin: 12mm; }
+    body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .panel, section { break-inside: avoid; }
+    .overflow-y-auto { max-height: none !important; overflow: visible !important; }
+}
+
+@layer base {
+    /* Tailwind v4 memakai currentColor sebagai warna border bawaan; samakan dengan garis desain. */
+    *, ::before, ::after, ::backdrop { border-color: var(--color-line); }
+
+    body { @apply bg-canvas text-ink antialiased text-[14px]; }
+    ::selection { @apply bg-accent text-white; }
+    input[type='number'] { -moz-appearance: textfield; }
+    input[type='number']::-webkit-inner-spin-button { opacity: .4; }
+    button, [role='button'] { cursor: pointer; }
+}
+
+@layer components {
+    .display { font-stretch: 82%; @apply font-bold tracking-tight; }
+    .num { font-variant-numeric: tabular-nums; }
+    .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-faint; }
+
+    .panel { @apply bg-surface border border-line rounded-md; }
+    .panel-head { @apply flex items-center justify-between gap-3 px-5 h-12 border-b border-line; }
+    .panel-title { @apply text-[13px] font-semibold text-ink; }
+
+    .btn { @apply inline-flex items-center justify-center gap-2 h-9 px-3.5 rounded-md text-[13px] font-semibold whitespace-nowrap transition-colors disabled:opacity-40 disabled:cursor-not-allowed; }
+    .btn-sm { @apply h-8 px-2.5 text-xs; }
+    .btn-primary { @apply bg-accent text-white hover:bg-accent-hover; }
+    .btn-secondary { @apply bg-surface border border-line-strong text-ink hover:bg-sunken; }
+    .btn-ghost { @apply text-muted hover:text-ink hover:bg-sunken; }
+    .btn-icon { @apply inline-flex items-center justify-center w-8 h-8 rounded-md text-muted hover:text-ink hover:bg-sunken transition-colors disabled:opacity-30 disabled:cursor-not-allowed; }
+
+    .label { @apply block text-xs font-semibold text-muted mb-1.5; }
+    .hint { @apply mt-1.5 text-xs text-faint; }
+    .field { @apply w-full h-9 px-3 rounded-md border border-line-strong bg-surface text-ink text-[13px] placeholder:text-faint transition focus:outline-none focus:border-accent focus:ring-[3px] focus:ring-accent/15; }
+    textarea.field { @apply h-auto py-2 leading-relaxed; }
+    .check { @apply w-4 h-4 cursor-pointer; accent-color: var(--color-accent); }
+
+    .tbl { @apply w-full text-left text-[13px]; }
+    .tbl thead th { @apply h-10 px-4 text-[11px] font-semibold uppercase tracking-[0.06em] text-faint bg-sunken/60 border-b border-line whitespace-nowrap; }
+    .tbl tbody td { @apply px-4 py-3 border-b border-line align-middle; }
+    .tbl tbody tr:last-child td { @apply border-b-0; }
+    .tbl tbody tr { @apply transition-colors hover:bg-sunken/40; }
+    .tbl tfoot td { @apply px-4 py-3 border-t border-line bg-sunken/60; }
+
+    .tag { @apply inline-flex items-center gap-1.5 h-6 px-2 rounded text-[11px] font-semibold whitespace-nowrap; }
+    .tag-neutral { @apply bg-sunken text-muted; }
+    .tag-accent { @apply bg-accent-soft text-accent-ink; }
+    .tag-ok { @apply bg-ok/10 text-ok; }
+    .tag-warn { @apply bg-warn/10 text-warn; }
+    .dot { @apply w-1.5 h-1.5 rounded-full bg-current; }
+
+    .link { @apply text-accent-ink font-semibold hover:underline underline-offset-2; }
+    .back-link { @apply inline-flex items-center gap-2 text-[13px] font-medium text-muted hover:text-ink transition-colors; }
+
+    .callout { @apply flex gap-3 px-4 py-3 rounded-md border border-line bg-surface border-l-[3px] text-[13px] text-muted leading-relaxed; }
+    .callout strong { @apply text-ink font-semibold; }
+
+    .segmented { @apply grid grid-cols-3 p-0.5 rounded-md bg-sunken border border-line; }
+    .segmented button { @apply h-7 rounded text-[11px] font-semibold text-faint hover:text-ink transition-colors; }
+    .segmented button[aria-pressed='true'] { @apply bg-surface text-ink shadow-sm; }
+
+    .empty { @apply px-5 py-14 text-center text-[13px] text-faint; }
+}
