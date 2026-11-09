@@ -11,7 +11,6 @@ class SawSeeder extends Seeder
     {
         $sawService->createDefaultCriteria();
 
-        // Nilai kriteria tiap produk dihitung dari transaksi kasir & penyesuaian stok.
         $sawService->syncFromSalesData();
     }
 }

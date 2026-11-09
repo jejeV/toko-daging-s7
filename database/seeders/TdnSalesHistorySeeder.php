@@ -18,20 +18,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Riwayat penjualan TDN Pasar Cibinong, 17 Jul – 4 Okt 2026 (sumber: data/tdn-penjualan-harian.csv).
- *
- * Dari Excel (persis): qty terjual per produk per hari dan harga jual.
- * Asumsi (Excel tidak memuatnya):
- *  - qty harian dipecah menjadi struk; jumlah struk per hari mengikuti volume hari itu,
- *  - harga beli = harga jual × (1 − margin kategori) ± 3%,
- *  - pembelian ke supplier setiap pagi saat stok tidak cukup untuk penjualan hari itu + cadangan,
- *  - susut, rusak, dan opname berkala.
- * "Item Lainnya (non-paretto)" tidak diseed karena tidak punya produk/qty.
- *
- * Semua transaksi lewat service, jadi stok, HPP moving average, dan stock_movements konsisten.
- * Acak tapi deterministik: hasil sama setiap kali dijalankan.
- */
+
 class TdnSalesHistorySeeder extends Seeder
 {
     /** Kategori => [supplier, margin kotor, umur simpan (hari)] */
@@ -63,8 +50,6 @@ class TdnSalesHistorySeeder extends Seeder
 
     public function run(PurchaseService $purchases, SaleService $sales, StockAdjustmentService $adjustments): void
     {
-        // Bisa dilanjutkan: kalau seeding sebelumnya terhenti, mulai dari hari penjualan terakhir
-        // dan jual hanya sisa qty hari itu. Hari-hari sebelumnya dilewati.
         $lastSale = Sale::max('sale_date');
         $resumeFrom = $lastSale ? Carbon::parse($lastSale)->toDateString() : null;
 
@@ -105,8 +90,7 @@ class TdnSalesHistorySeeder extends Seeder
 
                 $day = Carbon::parse($date);
 
-                // Satu transaksi per hari: lebih cepat (sekali commit), dan kalau terhenti
-                // tidak ada hari yang tersimpan setengah.
+
                 DB::transaction(function () use ($purchases, $sales, $adjustments, $owner, $cashiers, $suppliers, $products, $quantities, $average, $day, $date, $lastDate, $shrinkageDone) {
                     $this->restock($purchases, $owner, $suppliers, $products, $quantities, $average, $day);
                     $this->sellDay($sales, $cashiers, $products, $quantities, $day);

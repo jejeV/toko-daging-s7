@@ -7,10 +7,7 @@ use App\Models\Product;
 use App\Models\Supplier;
 use Illuminate\Database\Seeder;
 
-/**
- * Katalog produk fast selling TDN Pasar Cibinong (sumber: data/tdn-produk.csv,
- * diekspor dari "Data Harian TDN Pasar Cibinong.xlsx", sheet Harga Produk).
- */
+
 class MasterDataSeeder extends Seeder
 {
     /** Nama supplier fiktif; pemetaan kategori => supplier ada di TdnSalesHistorySeeder. */

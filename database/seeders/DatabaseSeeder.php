@@ -12,7 +12,6 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             MasterDataSeeder::class,
             TdnSalesHistorySeeder::class,
-            // Terakhir, supaya nilai kriteria SAW dihitung dari seluruh transaksi di atas.
             SawSeeder::class,
         ]);
     }
